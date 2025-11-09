@@ -1,5 +1,6 @@
 /* ============================================================
-   SMART KPI ENGINE – MAIN SCRIPT (v2.0)
+   SMART KPI ENGINE – MAIN SCRIPT (v3.0)
+   Unified Logic for KPI + Ontology Modes
    ============================================================ */
 
 let kpiData = {};
@@ -7,6 +8,7 @@ let kpiRelationships = {};
 let alerts = [];
 let selectedKPI = null;
 let connectionChart = null;
+let currentMode = "kpi";
 
 /* ============================================================
    INITIALIZATION
@@ -14,14 +16,20 @@ let connectionChart = null;
 document.addEventListener("DOMContentLoaded", async () => {
   try {
     await loadData();
-    initializeTypedText();
     initializeParticles();
     initializeRevealAnimations();
+    initializeTypedText();
     renderAlerts();
-    renderKPIMatrix();
-    initializeConnectionChart();
-    generateInsights();
-    initializeRelationshipPanel();
+
+    // Default mode is KPI
+    initializeKPIView();
+
+    // Event listener for mode switching (shared with index.html)
+    const modeSwitch = document.getElementById("mode-switch");
+    if (modeSwitch) {
+      modeSwitch.addEventListener("change", () => switchMode(modeSwitch.value));
+    }
+
     setupEventListeners();
     console.log("✅ Smart KPI Engine initialized successfully");
   } catch (err) {
@@ -30,7 +38,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 });
 
 /* ============================================================
-   LOAD DATA
+   DATA LOADING
    ============================================================ */
 async function loadData() {
   try {
@@ -39,7 +47,6 @@ async function loadData() {
       fetch("kpi_relationships.json"),
       fetch("alerts.json"),
     ]);
-
     kpiData = await kpiRes.json();
     kpiRelationships = await relRes.json();
     alerts = await alertsRes.json();
@@ -61,14 +68,12 @@ function initializeFallbackData() {
           target: "< 30",
           unit: "minutes",
           type: "lower_better",
-          trend: [29, 28.2, 27.9, 27.3, 27.2],
         },
         "Patient Satisfaction": {
           current_value: 3.9,
           target: "> 4.0",
           unit: "score/5",
           type: "higher_better",
-          trend: [3.7, 3.8, 3.9],
         },
       },
     },
@@ -92,8 +97,7 @@ function initializeFallbackData() {
       department: "Emergency Department",
       kpi: "Patient Satisfaction",
       level: "warning",
-      message:
-        "Patient satisfaction below target (3.9 vs >4.0)",
+      message: "Patient satisfaction below target (3.9 vs >4.0)",
       rootCause: "Extended average wait times",
       recommendation: "Reduce queue times by optimizing triage",
     },
@@ -101,64 +105,105 @@ function initializeFallbackData() {
 }
 
 /* ============================================================
-   ANIMATIONS AND VISUAL INIT
+   MODE SWITCHING
    ============================================================ */
-function initializeTypedText() {
-  new Typed("#typed-text", {
-    strings: [
-      "Disconnected Data",
-      "Siloed Metrics",
-      "Isolated KPIs",
-      "Reactive Decisions",
-    ],
-    typeSpeed: 70,
-    backSpeed: 50,
-    backDelay: 1800,
-    loop: true,
-  });
-}
+function switchMode(mode) {
+  currentMode = mode;
+  const kpiSection = document.getElementById("kpi-section");
+  const ontologySection = document.getElementById("ontology-section");
 
-function initializeParticles() {
-  const container = document.getElementById("particles");
-  if (!container) return;
-  for (let i = 0; i < 15; i++) {
-    const p = document.createElement("div");
-    p.className = "particle";
-    p.style.left = Math.random() * 100 + "%";
-    p.style.animationDelay = Math.random() * 4 + "s";
-    p.style.animationDuration = 4 + Math.random() * 3 + "s";
-    container.appendChild(p);
+  if (mode === "kpi") {
+    kpiSection.style.display = "block";
+    ontologySection.style.display = "none";
+    initializeKPIView();
+  } else {
+    kpiSection.style.display = "none";
+    ontologySection.style.display = "block";
+    initializeOntologyView();
   }
-}
-
-function initializeRevealAnimations() {
-  const els = document.querySelectorAll(".reveal-animation");
-  const observer = new IntersectionObserver(
-    (entries) =>
-      entries.forEach((e) =>
-        e.isIntersecting ? e.target.classList.add("revealed") : null
-      ),
-    { threshold: 0.1 }
-  );
-  els.forEach((el) => observer.observe(el));
+  console.log("🔄 Mode switched:", mode);
 }
 
 /* ============================================================
-   ALERTS RENDERING
+   KPI MODE: PERFORMANCE & TREND VISUALIZATION
+   ============================================================ */
+function initializeKPIView() {
+  const performanceChart = echarts.init(
+    document.getElementById("performance-chart")
+  );
+  const trendChart = echarts.init(document.getElementById("trend-chart"));
+
+  const hospitals = [
+    "General Medical Center",
+    "Regional Health System",
+    "Community Hospital",
+  ];
+
+  const colors = {
+    "General Medical Center": "#1B4B5A",
+    "Regional Health System": "#E07A5F",
+    "Community Hospital": "#81B29A",
+  };
+
+  performanceChart.setOption({
+    tooltip: { trigger: "axis" },
+    legend: { data: hospitals, bottom: 0 },
+    xAxis: { type: "category", data: ["Emergency", "Surgery", "Nursing", "Supply", "Admin"] },
+    yAxis: { type: "value", max: 100 },
+    series: hospitals.map((h) => ({
+      name: h,
+      type: "bar",
+      data: Array.from({ length: 5 }, () => Math.floor(Math.random() * 30) + 70),
+      itemStyle: { color: colors[h] },
+    })),
+  });
+
+  trendChart.setOption({
+    tooltip: { trigger: "axis" },
+    legend: { data: hospitals, bottom: 0 },
+    xAxis: { type: "category", data: ["Jan", "Feb", "Mar", "Apr", "May", "Jun"] },
+    yAxis: { type: "value", max: 100 },
+    series: hospitals.map((h) => ({
+      name: h,
+      type: "line",
+      smooth: true,
+      data: Array.from({ length: 6 }, () => Math.floor(Math.random() * 20) + 70),
+      itemStyle: { color: colors[h] },
+    })),
+  });
+
+  window.addEventListener("resize", () => {
+    performanceChart.resize();
+    trendChart.resize();
+  });
+}
+
+/* ============================================================
+   ONTOLOGY MODE: KPI CONNECTIONS + RELATIONSHIPS
+   ============================================================ */
+function initializeOntologyView() {
+  renderKPIMatrix();
+  initializeConnectionChart();
+  generateInsights();
+  initializeRelationshipPanel();
+}
+
+/* ============================================================
+   ALERTS
    ============================================================ */
 function renderAlerts() {
-  const c = document.getElementById("alerts-container");
-  if (!c) return;
+  const container = document.getElementById("alerts-container");
+  if (!container) return;
 
   if (alerts.length === 0) {
-    c.innerHTML = `<p class='text-gray-500'>No active alerts</p>`;
+    container.innerHTML = `<p class='text-gray-500'>No active alerts</p>`;
     return;
   }
 
-  c.innerHTML = alerts
+  container.innerHTML = alerts
     .map(
       (a, i) => `
-    <div class="alert-item flex items-center justify-between bg-gray-50 p-4 rounded-lg border-l-4 border-${
+    <div class="alert-item flex justify-between bg-gray-50 p-4 rounded-lg border-l-4 border-${
       a.level === "critical"
         ? "red"
         : a.level === "warning"
@@ -174,14 +219,13 @@ function renderAlerts() {
     )
     .join("");
 
-  c.querySelectorAll(".alert-item").forEach((el) =>
-    el.addEventListener("click", () => showAlertDetails(alerts[el.dataset.index]))
+  container.querySelectorAll(".alert-item").forEach((el) =>
+    el.addEventListener("click", () =>
+      showAlertDetails(alerts[el.dataset.index])
+    )
   );
 }
 
-/* ============================================================
-   ALERT DETAILS MODAL
-   ============================================================ */
 function showAlertDetails(alert) {
   const modal = document.createElement("div");
   modal.className =
@@ -211,6 +255,7 @@ function renderKPIMatrix() {
   const container = document.getElementById("kpi-matrix");
   if (!container) return;
   container.innerHTML = "";
+
   for (const [hospital, depts] of Object.entries(kpiData)) {
     for (const [dept, kpis] of Object.entries(depts)) {
       for (const [name, data] of Object.entries(kpis)) {
@@ -234,20 +279,18 @@ function createKPICard(hospital, department, name, data) {
     <p class="text-2xl font-bold">${data.current_value} <span class="text-sm text-gray-500">${data.unit}</span></p>
     <p class="text-xs text-gray-500 mb-2">Target: ${data.target}</p>
     <span class="inline-block text-xs px-2 py-1 rounded bg-${
-      status === "excellent"
-        ? "green"
-        : status === "warning"
-        ? "yellow"
-        : "red"
-    }-100 text-${status === "excellent" ? "green" : "red"}-700">${status}</span>
+      status === "good" ? "green" : "yellow"
+    }-100 text-${status === "good" ? "green" : "yellow"}-700">${status}</span>
   `;
 
-  card.addEventListener("click", () => selectKPI(hospital, department, name));
+  card.addEventListener("click", () =>
+    selectKPI(hospital, department, name)
+  );
   return card;
 }
 
 /* ============================================================
-   KPI SELECTION + RELATIONSHIP PANEL
+   RELATIONSHIP DETAILS PANEL
    ============================================================ */
 function initializeRelationshipPanel() {
   if (document.getElementById("relationship-panel")) return;
@@ -262,7 +305,6 @@ function selectKPI(hospital, dept, kpiName) {
   document
     .querySelectorAll(".kpi-card")
     .forEach((c) => c.classList.remove("highlighted"));
-  document.getElementById("connection-lines")?.replaceChildren();
 
   const card = document.querySelector(
     `[data-hospital="${hospital}"][data-department="${dept}"][data-kpi="${kpiName}"]`
@@ -277,9 +319,6 @@ function selectKPI(hospital, dept, kpiName) {
   selectedKPI = { hospital, dept, kpiName };
 }
 
-/* ============================================================
-   RELATIONSHIP DETAILS PANEL
-   ============================================================ */
 function showRelationshipDetails(kpiName, rel) {
   const panel = document.getElementById("relationship-panel");
   if (!panel) return;
@@ -294,18 +333,9 @@ function showRelationshipDetails(kpiName, rel) {
           }%): ${i.description}</li>`
       )
       .join("")}</ul></div>`;
-  if (rel.affected_by?.length)
-    html += `<div><strong>Affected by:</strong><ul class="list-disc ml-5">${rel.affected_by
-      .map(
-        (a) =>
-          `<li><span class="font-medium">${a.kpi}</span> (${a.strength > 0 ? "↑" : "↓"} ${
-            Math.abs(a.strength * 100).toFixed(0)
-          }%): ${a.description}</li>`
-      )
-      .join("")}</ul></div>`;
 
   panel.innerHTML = html;
-  panel.classList.remove("hidden");
+  panel.style.display = "block";
 }
 
 /* ============================================================
@@ -371,7 +401,7 @@ function generateInsights() {
 }
 
 /* ============================================================
-   HELPERS + EVENT LISTENERS
+   HELPERS
    ============================================================ */
 function getKPIStatus(val, target, type) {
   const num = parseFloat(target.replace(/[^0-9.]/g, ""));
@@ -400,13 +430,6 @@ function updateConnectionChart(hospital, department, kpiName) {
       }
       links.push({ source: kpiName, target: imp.kpi, strength: Math.abs(imp.strength) });
     });
-    rel.affected_by?.forEach((aff) => {
-      if (!added.has(aff.kpi)) {
-        nodes.push({ name: aff.kpi, value: findKPIValue(aff.kpi) });
-        added.add(aff.kpi);
-      }
-      links.push({ source: aff.kpi, target: kpiName, strength: Math.abs(aff.strength) });
-    });
   }
   connectionChart.setOption({ series: [{ data: nodes, links: links }] });
 }
@@ -420,13 +443,57 @@ function findKPIValue(kpiName) {
   return 0;
 }
 
+/* ============================================================
+   ANIMATIONS & PARTICLES
+   ============================================================ */
+function initializeParticles() {
+  const container = document.getElementById("particles");
+  if (!container) return;
+  for (let i = 0; i < 15; i++) {
+    const p = document.createElement("div");
+    p.className = "particle";
+    p.style.left = Math.random() * 100 + "%";
+    p.style.animationDelay = Math.random() * 4 + "s";
+    p.style.animationDuration = 4 + Math.random() * 3 + "s";
+    container.appendChild(p);
+  }
+}
+
+function initializeRevealAnimations() {
+  const els = document.querySelectorAll(".reveal-animation");
+  const observer = new IntersectionObserver(
+    (entries) =>
+      entries.forEach((e) =>
+        e.isIntersecting ? e.target.classList.add("revealed") : null
+      ),
+    { threshold: 0.1 }
+  );
+  els.forEach((el) => observer.observe(el));
+}
+
+function initializeTypedText() {
+  if (!document.getElementById("typed-text")) return;
+  new Typed("#typed-text", {
+    strings: ["Disconnected Data", "Siloed Metrics", "Reactive Decisions"],
+    typeSpeed: 70,
+    backSpeed: 50,
+    backDelay: 1800,
+    loop: true,
+  });
+}
+
+/* ============================================================
+   GLOBAL LISTENERS
+   ============================================================ */
 function setupEventListeners() {
   document.addEventListener("click", (e) => {
     if (
       !e.target.closest(".kpi-card") &&
       !e.target.closest("#relationship-panel") &&
       !e.target.closest("#alerts-container")
-    )
-      document.getElementById("relationship-panel")?.classList.add("hidden");
+    ) {
+      const panel = document.getElementById("relationship-panel");
+      if (panel) panel.style.display = "none";
+    }
   });
 }
