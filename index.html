@@ -3,112 +3,36 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Smart KPI Engine – Healthcare Dashboard</title>
+  <title>Smart KPI Engine – Unified Healthcare Dashboard</title>
 
   <!-- Core Libraries -->
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/echarts/5.4.3/echarts.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.7.0/p5.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/typed.js/2.0.12/typed.min.js"></script>
-
-  <link href="https://unpkg.com/splitting@1.0.6/dist/splitting.css" rel="stylesheet" />
-  <script src="https://unpkg.com/splitting@1.0.6/dist/splitting.min.js"></script>
 
   <style>
     @import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap");
-
     :root {
-      --primary: #1B4B5A;
-      --accent: #E07A5F;
-      --sage: #81B29A;
-      --light: #F4F3F1;
-      --success: #27AE60;
-      --warning: #F39C12;
-      --danger: #E74C3C;
+      --primary:#1B4B5A;--accent:#E07A5F;--sage:#81B29A;--light:#F4F3F1;
     }
-
-    * {
-      font-family: "Inter", sans-serif;
-    }
-
-    body {
-      background: linear-gradient(135deg, var(--light) 0%, #E8F4F8 100%);
-      color: #2C3E50;
-      overflow-x: hidden;
-    }
-
-    .hero-bg {
-      background: linear-gradient(135deg, var(--primary) 0%, #2C5F6F 50%, var(--sage) 100%);
-      position: relative;
-      overflow: hidden;
-      color: white;
-    }
-
-    .particle {
-      position: absolute;
-      width: 4px;
-      height: 4px;
-      border-radius: 50%;
-      background: rgba(255, 255, 255, 0.5);
-      animation: float 6s ease-in-out infinite;
-    }
-
-    @keyframes float {
-      0%, 100% { transform: translateY(0); opacity: 0.3; }
-      50% { transform: translateY(-20px); opacity: 1; }
-    }
-
-    .kpi-card {
-      background: rgba(255, 255, 255, 0.95);
-      border: 1px solid rgba(255, 255, 255, 0.3);
-      border-radius: 1rem;
-      padding: 1.5rem;
-      transition: all 0.3s ease;
-      position: relative;
-    }
-
-    .kpi-card:hover {
-      transform: translateY(-3px);
-      box-shadow: 0 10px 20px rgba(27, 75, 90, 0.15);
-    }
-
-    .highlighted {
-      border-color: var(--accent);
-      box-shadow: 0 0 20px rgba(224, 122, 95, 0.4);
-    }
-
-    .connection-line {
-      position: absolute;
-      height: 2px;
-      background: linear-gradient(90deg, var(--accent), var(--sage));
-      transform-origin: left center;
-      opacity: 0;
-      transition: opacity 0.3s ease;
-      pointer-events: none;
-    }
-
-    .connection-line.active { opacity: 0.8; }
-
-    #relationship-panel {
-      position: fixed;
-      top: 100px;
-      right: 24px;
-      width: 320px;
-      background: white;
-      border: 1px solid #e5e7eb;
-      border-radius: 1rem;
-      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
-      padding: 1rem 1.25rem;
-      display: none;
-      z-index: 50;
-    }
-
-    .gradient-text {
-      background: linear-gradient(135deg, var(--primary), var(--accent));
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-    }
+    *{font-family:"Inter",sans-serif;}
+    body{background:linear-gradient(135deg,var(--light)0%,#E8F4F8 100%);color:#2C3E50;overflow-x:hidden;}
+    .hero-bg{background:linear-gradient(135deg,var(--primary)0%,#2C5F6F 50%,var(--sage)100%);color:white;}
+    .gradient-text{background:linear-gradient(135deg,var(--primary),var(--accent));
+      -webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+    .kpi-card{background:#fff;border-radius:1rem;padding:1.5rem;
+      border:1px solid #f0f0f0;transition:all .3s ease;}
+    .kpi-card:hover{transform:translateY(-3px);
+      box-shadow:0 12px 25px rgba(27,75,90,0.1);}
+    .highlighted{border-color:var(--accent);box-shadow:0 0 20px rgba(224,122,95,0.4);}
+    #relationship-panel{position:fixed;top:100px;right:24px;width:320px;
+      background:white;border:1px solid #e5e7eb;border-radius:1rem;
+      box-shadow:0 8px 24px rgba(0,0,0,0.1);padding:1rem 1.25rem;display:none;z-index:50;}
+    .comparison-card{background:#fff;border-radius:1rem;box-shadow:0 10px 25px rgba(0,0,0,0.05);
+      border:1px solid #f0f0f0;transition:all .3s ease;}
+    .comparison-card:hover{transform:translateY(-3px);
+      box-shadow:0 12px 30px rgba(27,75,90,0.15);}
   </style>
 </head>
 
@@ -120,28 +44,36 @@
         <div class="w-8 h-8 bg-gradient-to-br from-teal-600 to-teal-700 rounded-lg flex items-center justify-center text-white font-bold">SK</div>
         <span class="text-xl font-bold text-gray-800">Smart KPI Engine</span>
       </div>
-
       <div class="flex space-x-8">
-        <a href="index.html" class="nav-link text-teal-700 font-medium border-b-2 border-teal-600">Dashboard</a>
-        <a href="comparison.html" class="nav-link text-gray-600 hover:text-teal-600">Comparison</a>
-        <a href="insights.html" class="nav-link text-gray-600 hover:text-teal-600">Insights</a>
+        <a href="index.html" class="text-teal-700 font-medium border-b-2 border-teal-600">Dashboard</a>
+        <a href="comparison.html" class="text-gray-600 hover:text-teal-600">Comparison</a>
+        <a href="insights.html" class="text-gray-600 hover:text-teal-600">Insights</a>
       </div>
-
-      <div class="flex items-center space-x-2">
-        <div class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-        <span class="text-sm text-gray-500">Live</span>
+      <div class="flex items-center space-x-3">
+        <div class="flex items-center space-x-1">
+          <div class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+          <span class="text-sm text-gray-500">Live</span>
+        </div>
+        <!-- Mode Switch -->
+        <div class="flex items-center space-x-2">
+          <label for="mode-switch" class="text-sm text-gray-600 font-medium">Mode:</label>
+          <select id="mode-switch" class="px-2 py-1 border rounded text-sm focus:ring-2 focus:ring-teal-500">
+            <option value="kpi">📊 KPI Dashboard</option>
+            <option value="ontology">🧠 Ontology + KPI</option>
+          </select>
+        </div>
       </div>
     </div>
   </nav>
 
   <!-- Hero -->
   <section class="hero-bg py-16 text-center relative">
-    <div id="particles" class="absolute inset-0 z-0"></div>
     <div class="relative z-10 px-6 max-w-4xl mx-auto">
-      <h1 class="text-5xl font-bold mb-6">From <span id="typed-text" class="text-orange-300"></span> to Connected Decisions</h1>
+      <h1 class="text-5xl font-bold mb-6">
+        From <span id="typed-text" class="text-orange-300"></span> to Connected Intelligence
+      </h1>
       <p class="text-lg text-white/90 mb-8">
-        Unify healthcare performance metrics into actionable intelligence. 
-        The Smart KPI Engine connects departmental data for real-time, evidence-driven decisions.
+        Visualize healthcare KPIs or explore ontology-based insights that reveal hidden performance connections.
       </p>
       <div class="flex justify-center gap-8">
         <div class="bg-white/20 p-4 rounded-lg">
@@ -154,69 +86,74 @@
         </div>
         <div class="bg-white/20 p-4 rounded-lg">
           <div class="text-3xl font-bold">75</div>
-          <div class="text-sm text-white/80">Connected KPIs</div>
+          <div class="text-sm text-white/80">KPIs Connected</div>
         </div>
       </div>
     </div>
   </section>
 
   <main class="max-w-7xl mx-auto px-6 py-12">
-    <!-- Alerts -->
-    <section class="mb-12">
-      <div class="bg-white p-6 rounded-xl shadow">
-        <h2 class="text-2xl font-semibold mb-4 flex items-center"><span class="w-3 h-3 bg-yellow-400 rounded-full mr-2"></span> Smart Alerts & Notifications</h2>
-        <div id="alerts-container" class="space-y-4 text-sm text-gray-700">
-          <!-- JS Populates Alerts -->
+
+    <!-- ========== KPI MODE SECTION ========== -->
+    <div id="kpi-section">
+      <!-- Alerts -->
+      <section class="mb-12">
+        <div class="bg-white p-6 rounded-xl shadow">
+          <h2 class="text-2xl font-semibold mb-4 flex items-center">
+            <span class="w-3 h-3 bg-yellow-400 rounded-full mr-2"></span>
+            Smart Alerts & Notifications
+          </h2>
+          <div id="alerts-container" class="space-y-4 text-sm text-gray-700">
+            <!-- JS Populates Alerts -->
+          </div>
         </div>
-      </div>
-    </section>
+      </section>
 
-    <!-- KPI Matrix -->
-    <section class="mb-12">
-      <div class="flex justify-between items-center mb-6">
-        <h2 class="text-3xl font-bold gradient-text">KPI Connection Matrix</h2>
-        <div class="flex space-x-3">
-          <select id="hospital-filter" class="px-3 py-2 border rounded-lg focus:ring-2 focus:ring-teal-500">
-            <option value="all">All Hospitals</option>
-            <option value="General Medical Center">General Medical Center</option>
-            <option value="Regional Health System">Regional Health System</option>
-            <option value="Community Hospital">Community Hospital</option>
-          </select>
-          <select id="department-filter" class="px-3 py-2 border rounded-lg focus:ring-2 focus:ring-teal-500">
-            <option value="all">All Departments</option>
-            <option value="Emergency Department">Emergency Department</option>
-            <option value="Surgery Department">Surgery Department</option>
-            <option value="Nursing Department">Nursing Department</option>
-            <option value="Supply Chain">Supply Chain</option>
-            <option value="Administration">Administration</option>
-          </select>
+      <!-- KPI Overview Chart -->
+      <section class="mb-12">
+        <div class="comparison-card p-6">
+          <h2 class="text-2xl font-semibold mb-4 gradient-text">Hospital KPI Overview</h2>
+          <div id="performance-chart" class="h-96"></div>
         </div>
-      </div>
-      <div id="kpi-matrix" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 relative"></div>
-    </section>
+      </section>
 
-    <!-- KPI Relationship Chart -->
-    <section class="mb-12">
-      <div class="bg-white p-6 rounded-xl shadow">
-        <h2 class="text-2xl font-semibold mb-4">Real-Time Relationship Network</h2>
-        <div id="connection-chart" class="h-96"></div>
-      </div>
-    </section>
+      <!-- KPI Trends -->
+      <section>
+        <div class="comparison-card p-6">
+          <h2 class="text-2xl font-semibold mb-4 gradient-text">KPI Trends Over Time</h2>
+          <div id="trend-chart" class="h-96"></div>
+        </div>
+      </section>
+    </div>
 
-    <!-- Smart Insights -->
-    <section>
-      <div class="bg-white p-6 rounded-xl shadow">
-        <h2 class="text-2xl font-semibold mb-6">Smart Insights</h2>
-        <div id="insights-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
-      </div>
-    </section>
+    <!-- ========== ONTOLOGY MODE SECTION ========== -->
+    <div id="ontology-section" style="display:none;">
+      <!-- KPI Matrix -->
+      <section class="mb-12">
+        <h2 class="text-3xl font-bold gradient-text mb-6">KPI Connection Matrix</h2>
+        <div id="kpi-matrix" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 relative"></div>
+      </section>
+
+      <!-- Relationship Chart -->
+      <section class="mb-12">
+        <div class="bg-white p-6 rounded-xl shadow">
+          <h2 class="text-2xl font-semibold mb-4">Ontology Relationship Network</h2>
+          <div id="connection-chart" class="h-96"></div>
+        </div>
+      </section>
+
+      <!-- Smart Insights -->
+      <section>
+        <div class="bg-white p-6 rounded-xl shadow">
+          <h2 class="text-2xl font-semibold mb-6">Ontology-Based Insights</h2>
+          <div id="insights-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+        </div>
+      </section>
+
+      <!-- Relationship Panel -->
+      <div id="relationship-panel"></div>
+    </div>
   </main>
-
-  <!-- Relationship Panel -->
-  <div id="relationship-panel"></div>
-
-  <!-- Connection Lines -->
-  <div id="connection-lines" class="fixed inset-0 pointer-events-none z-40"></div>
 
   <!-- Footer -->
   <footer class="bg-gray-800 text-white py-8 mt-16">
@@ -224,6 +161,59 @@
       © 2025 Smart KPI Engine. Empowering healthcare with connected intelligence.
     </div>
   </footer>
+
+  <script>
+    // --- MODE SWITCH LOGIC ---
+    let currentMode = "kpi";
+    document.addEventListener("DOMContentLoaded", () => {
+      new Typed("#typed-text", {
+        strings:["Disconnected Data","Isolated KPIs","Reactive Decisions"],
+        typeSpeed:70,backSpeed:50,backDelay:1800,loop:true
+      });
+      const modeSwitch=document.getElementById("mode-switch");
+      modeSwitch.addEventListener("change",()=>switchMode(modeSwitch.value));
+      initializeKPIView();
+    });
+
+    function switchMode(mode){
+      currentMode=mode;
+      const kpi=document.getElementById("kpi-section");
+      const ont=document.getElementById("ontology-section");
+      if(mode==="kpi"){kpi.style.display="block";ont.style.display="none";initializeKPIView();}
+      else{ont.style.display="block";kpi.style.display="none";initializeOntologyView();}
+      console.log("🔄 Mode:",mode);
+    }
+
+    // --- KPI MODE (Charts Only) ---
+    function initializeKPIView(){
+      const pc=echarts.init(document.getElementById("performance-chart"));
+      const tc=echarts.init(document.getElementById("trend-chart"));
+      const hospitals=["General Medical Center","Regional Health System","Community Hospital"];
+      const colors={"General Medical Center":"#1B4B5A","Regional Health System":"#E07A5F","Community Hospital":"#81B29A"};
+      pc.setOption({
+        tooltip:{trigger:"axis"},
+        legend:{data:hospitals,bottom:0},
+        xAxis:{type:"category",data:["Emergency","Surgery","Nursing","Supply","Admin"]},
+        yAxis:{type:"value",max:100},
+        series:hospitals.map(h=>({name:h,type:"bar",data:Array.from({length:5},()=>Math.floor(Math.random()*30)+70),itemStyle:{color:colors[h]}}))
+      });
+      tc.setOption({
+        tooltip:{trigger:"axis"},
+        legend:{data:hospitals,bottom:0},
+        xAxis:{type:"category",data:["Jan","Feb","Mar","Apr","May","Jun"]},
+        yAxis:{type:"value",max:100},
+        series:hospitals.map(h=>({name:h,type:"line",smooth:true,data:Array.from({length:6},()=>Math.floor(Math.random()*20)+70),itemStyle:{color:colors[h]}}))
+      });
+    }
+
+    // --- ONTOLOGY MODE (KPI + Knowledge) ---
+    function initializeOntologyView(){
+      if(typeof renderKPIMatrix==="function"){renderKPIMatrix();}
+      if(typeof initializeConnectionChart==="function"){initializeConnectionChart();}
+      if(typeof generateInsights==="function"){generateInsights();}
+      if(typeof renderAlerts==="function"){renderAlerts();}
+    }
+  </script>
 
   <script src="main.js"></script>
 </body>
