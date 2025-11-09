@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Smart KPI Engine – Insights</title>
+
+  <!-- Core Libraries -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/echarts/5.4.3/echarts.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/typed.js/2.0.12/typed.min.js"></script>
+
+  <style>
+    @import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap");
+
+    :root {
+      --primary: #1B4B5A;
+      --accent: #E07A5F;
+      --sage: #81B29A;
+      --light: #F4F3F1;
+      --success: #27AE60;
+      --warning: #F39C12;
+      --danger: #E74C3C;
+    }
+
+    * { font-family: "Inter", sans-serif; }
+
+    body {
+      background: linear-gradient(135deg, var(--light) 0%, #E8F4F8 100%);
+      color: #2C3E50;
+      overflow-x: hidden;
+    }
+
+    .gradient-text {
+      background: linear-gradient(135deg, var(--primary), var(--accent));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .insight-card {
+      background: white;
+      border-radius: 1rem;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+      transition: all 0.3s ease;
+      border: 1px solid #f0f0f0;
+    }
+
+    .insight-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 12px 30px rgba(27, 75, 90, 0.15);
+    }
+
+    .impact-badge {
+      font-size: 0.7rem;
+      padding: 0.25rem 0.5rem;
+      border-radius: 0.5rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+    }
+
+    .impact-critical { background-color: #fee2e2; color: #b91c1c; }
+    .impact-high { background-color: #ffedd5; color: #c2410c; }
+    .impact-medium { background-color: #e0f2fe; color: #075985; }
+    .impact-low { background-color: #ecfdf5; color: #065f46; }
+
+    .reveal-animation {
+      opacity: 0;
+      transform: translateY(30px);
+      transition: all 0.6s ease;
+    }
+    .reveal-animation.revealed { opacity: 1; transform: translateY(0); }
+  </style>
+</head>
+
+<body>
+  <!-- Navigation -->
+  <nav class="bg-white/90 backdrop-blur border-b border-gray-200 sticky top-0 z-50">
+    <div class="max-w-7xl mx-auto px-6 flex justify-between items-center h-16">
+      <div class="flex items-center space-x-2">
+        <div class="w-8 h-8 bg-gradient-to-br from-teal-600 to-teal-700 rounded-lg flex items-center justify-center text-white font-bold">SK</div>
+        <span class="text-xl font-bold text-gray-800">Smart KPI Engine</span>
+      </div>
+
+      <div class="flex space-x-8">
+        <a href="index.html" class="nav-link text-gray-600 hover:text-teal-600">Dashboard</a>
+        <a href="comparison.html" class="nav-link text-gray-600 hover:text-teal-600">Comparison</a>
+        <a href="insights.html" class="nav-link text-teal-700 font-medium border-b-2 border-teal-600">Insights</a>
+      </div>
+
+      <div class="flex items-center space-x-2">
+        <div class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+        <span class="text-sm text-gray-500">Live</span>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Hero Section -->
+  <section class="bg-gradient-to-r from-teal-700 to-teal-500 text-white py-16 text-center">
+    <div class="max-w-3xl mx-auto px-6">
+      <h1 class="text-4xl md:text-5xl font-bold mb-4">Connected Performance Insights</h1>
+      <p class="text-lg text-white/90">
+        Explore key patterns, relationships, and improvement opportunities derived from connected KPIs across hospitals.
+      </p>
+    </div>
+  </section>
+
+  <!-- Insights Dashboard -->
+  <main class="max-w-7xl mx-auto px-6 py-12 space-y-16">
+
+    <!-- Insight Overview -->
+    <section class="reveal-animation">
+      <div class="insight-card p-6">
+        <div class="flex justify-between items-center mb-6">
+          <h2 class="text-2xl font-bold gradient-text">Insight Overview</h2>
+          <div class="flex gap-3">
+            <select id="hospital-filter" class="px-3 py-2 border rounded-lg focus:ring-2 focus:ring-teal-500">
+              <option value="all">All Hospitals</option>
+              <option>General Medical Center</option>
+              <option>Regional Health System</option>
+              <option>Community Hospital</option>
+            </select>
+            <select id="impact-filter" class="px-3 py-2 border rounded-lg focus:ring-2 focus:ring-teal-500">
+              <option value="all">All Impact Levels</option>
+              <option value="critical">Critical</option>
+              <option value="high">High</option>
+              <option value="medium">Medium</option>
+              <option value="low">Low</option>
+            </select>
+          </div>
+        </div>
+
+        <div id="insights-container" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+      </div>
+    </section>
+
+    <!-- Chart Dashboard -->
+    <section class="reveal-animation">
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div class="lg:col-span-2 insight-card p-6">
+          <h3 class="text-xl font-semibold text-gray-800 mb-4">KPI Trend Patterns</h3>
+          <div id="pattern-chart" class="h-80"></div>
+        </div>
+
+        <div class="space-y-6">
+          <div class="insight-card p-6">
+            <h4 class="font-semibold text-gray-800 mb-4">Insight Confidence</h4>
+            <div class="space-y-3 text-sm">
+              <div class="flex justify-between"><span>Data Completeness</span><span>95%</span></div>
+              <div class="flex justify-between"><span>Correlation Strength</span><span>0.81</span></div>
+              <div class="flex justify-between"><span>Consistency Across Hospitals</span><span>91%</span></div>
+            </div>
+          </div>
+
+          <div class="insight-card p-6">
+            <h4 class="font-semibold text-gray-800 mb-4">Key Findings</h4>
+            <ul class="text-sm text-gray-700 space-y-1">
+              <li>• Higher staff utilization correlates with lower satisfaction</li>
+              <li>• Wait time reduction improves patient feedback consistency</li>
+              <li>• Financial efficiency tied to reduced supply chain variance</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Root Cause and Impact -->
+    <section class="grid grid-cols-1 lg:grid-cols-2 gap-8 reveal-animation">
+      <div class="insight-card p-6">
+        <h3 class="text-xl font-semibold text-gray-800 mb-4">Root Cause Distribution</h3>
+        <div id="root-cause-chart" class="h-72"></div>
+      </div>
+      <div class="insight-card p-6">
+        <h3 class="text-xl font-semibold text-gray-800 mb-4">Predicted Improvement Areas</h3>
+        <div id="impact-chart" class="h-72"></div>
+      </div>
+    </section>
+
+    <!-- Actionable Recommendations -->
+    <section class="reveal-animation">
+      <div class="insight-card p-6">
+        <div class="flex justify-between items-center mb-6">
+          <h3 class="text-xl font-semibold text-gray-800">Actionable Recommendations</h3>
+          <div class="flex space-x-2">
+            <button class="filter-btn px-4 py-2 text-sm rounded-lg bg-teal-100 text-teal-700" data-filter="all">All</button>
+            <button class="filter-btn px-4 py-2 text-sm text-gray-600 hover:bg-gray-100" data-filter="high">High</button>
+            <button class="filter-btn px-4 py-2 text-sm text-gray-600 hover:bg-gray-100" data-filter="medium">Medium</button>
+          </div>
+        </div>
+        <div id="recommendations-container" class="space-y-4"></div>
+      </div>
+    </section>
+
+    <!-- Action Plan -->
+    <section class="reveal-animation">
+      <div class="insight-card p-6">
+        <h3 class="text-xl font-semibold text-gray-800 mb-4">Ongoing Action Plans</h3>
+        <div id="action-plan" class="space-y-4"></div>
+      </div>
+    </section>
+
+    <!-- Success Stories -->
+    <section class="reveal-animation">
+      <div class="insight-card p-6">
+        <h3 class="text-xl font-semibold text-gray-800 mb-4">Performance Highlights</h3>
+        <div id="success-stories" class="grid grid-cols-1 md:grid-cols-2 gap-6"></div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Footer -->
+  <footer class="bg-gray-800 text-white py-8 mt-16">
+    <div class="max-w-7xl mx-auto text-center text-gray-400 text-sm">
+      © 2025 Smart KPI Engine. Transforming healthcare performance through connected metrics.
+    </div>
+  </footer>
+
+  <!-- JavaScript Logic -->
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      initReveal();
+      initCharts();
+      populateInsights();
+      populateRecommendations();
+      populateActionPlan();
+      populateStories();
+      initFilters();
+    });
+
+    function initReveal() {
+      const revealEls = document.querySelectorAll('.reveal-animation');
+      const obs = new IntersectionObserver(entries => {
+        entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('revealed'); });
+      }, { threshold: 0.15 });
+      revealEls.forEach(el => obs.observe(el));
+    }
+
+    function initCharts() {
+      const pattern = echarts.init(document.getElementById('pattern-chart'));
+      pattern.setOption({
+        tooltip: { trigger: 'axis' },
+        legend: { bottom: 0 },
+        xAxis: { type: 'category', data: ['Week 1','Week 2','Week 3','Week 4','Week 5'] },
+        yAxis: { type: 'value' },
+        series: [
+          { name: 'Wait Time', type: 'line', smooth: true, data: [28,30,26,25,24], color: '#E07A5F' },
+          { name: 'Satisfaction', type: 'line', smooth: true, data: [3.4,3.6,3.7,3.8,3.9], color: '#81B29A' },
+          { name: 'Utilization', type: 'line', smooth: true, data: [82,84,86,83,85], color: '#1B4B5A' },
+          { name: 'Cost Efficiency', type: 'line', smooth: true, data: [70,73,74,76,78], color: '#F39C12' }
+        ]
+      });
+
+      const root = echarts.init(document.getElementById('root-cause-chart'));
+      root.setOption({
+        tooltip: { trigger: 'item' },
+        series: [{
+          type: 'pie',
+          radius: ['40%','70%'],
+          data: [
+            { value: 35, name: 'Staffing' },
+            { value: 25, name: 'Process Flow' },
+            { value: 20, name: 'Resource Allocation' },
+            { value: 10, name: 'Supply Chain' },
+            { value: 10, name: 'Other' }
+          ]
+        }]
+      });
+
+      const impact = echarts.init(document.getElementById('impact-chart'));
+      impact.setOption({
+        tooltip: { trigger: 'axis' },
+        xAxis: { type: 'category', data: ['Wait Time','Satisfaction','Cost','Quality','Efficiency'] },
+        yAxis: { type: 'value', name: '%' },
+        series: [{
+          type: 'bar',
+          data: [25,18,15,22,20],
+          itemStyle: { color: params => ['#E07A5F','#81B29A','#1B4B5A','#F39C12','#27AE60'][params.dataIndex] }
+        }]
+      });
+
+      window.addEventListener('resize', () => {
+        pattern.resize(); root.resize(); impact.resize();
+      });
+    }
+
+    function populateInsights() {
+      const insights = [
+        { title:'Wait Time Impact', desc:'Longer ER wait times reduce satisfaction scores.', impact:'high', hospital:'General Medical Center' },
+        { title:'Staff Utilization', desc:'Over-utilization correlates with fatigue and turnover.', impact:'critical', hospital:'Community Hospital' },
+        { title:'Supply Chain Gaps', desc:'Inventory delays affecting OR scheduling efficiency.', impact:'medium', hospital:'Regional Health System' }
+      ];
+      const c = document.getElementById('insights-container');
+      c.innerHTML = insights.map(i=>`
+        <div class="p-5 insight-card">
+          <div class="flex justify-between mb-3">
+            <h3 class="font-semibold text-gray-800">${i.title}</h3>
+            <span class="impact-badge impact-${i.impact}">${i.impact}</span>
+          </div>
+          <p class="text-sm text-gray-600">${i.desc}</p>
+          <p class="text-xs text-gray-500 mt-2"><strong>Hospital:</strong> ${i.hospital}</p>
+        </div>
+      `).join('');
+    }
+
+    function populateRecommendations() {
+      const recs = [
+        { t:'Optimize Staffing Models', d:'Adjust schedules to patient flow for 20% efficiency gain.', p:'high' },
+        { t:'Streamline Discharge Process', d:'Reduce readmissions through post-care tracking.', p:'medium' },
+        { t:'Inventory Forecasting', d:'Use demand prediction for supply ordering.', p:'medium' }
+      ];
+      const c = document.getElementById('recommendations-container');
+      c.innerHTML = recs.map(r=>`
+        <div class="border-l-4 pl-4 ${r.p==='high'?'border-red-500 bg-red-50':'border-orange-400 bg-orange-50'} p-3 rounded">
+          <h4 class="font-semibold text-gray-800 mb-1">${r.t}</h4>
+          <p class="text-sm text-gray-600">${r.d}</p>
+        </div>
+      `).join('');
+    }
+
+    function populateActionPlan() {
+      const actions = [
+        { t:'Adjust Emergency Staffing', s:'In Progress', p:65 },
+        { t:'Implement Inventory Checks', s:'Planned', p:0 },
+        { t:'Improve Feedback Tracking', s:'Completed', p:100 }
+      ];
+      const c = document.getElementById('action-plan');
+      c.innerHTML = actions.map(a=>`
+        <div class="bg-gray-50 border p-4 rounded-lg">
+          <div class="flex justify-between mb-2"><h4 class="font-semibold">${a.t}</h4><span class="text-sm text-gray-600">${a.s}</span></div>
+          <div class="w-full bg-gray-200 rounded-full h-2 mb-1">
+            <div class="bg-teal-600 h-2 rounded-full" style="width:${a.p}%"></div>
+          </div>
+          <span class="text-xs text-gray-500">${a.p}% complete</span>
+        </div>
+      `).join('');
+    }
+
+    function populateStories() {
+      const stories = [
+        { t:'Wait Time Reduction', d:'Regional Health System cut ER times by 28% in 6 weeks.', dept:'Emergency', period:'6 weeks' },
+        { t:'Medication Safety', d:'General Medical Center lowered error rate by 45%.', dept:'Pharmacy', period:'4 weeks' }
+      ];
+      const c = document.getElementById('success-stories');
+      c.innerHTML = stories.map(s=>`
+        <div class="bg-green-50 border-l-4 border-green-500 p-4 rounded">
+          <h4 class="font-semibold text-gray-800 mb-1">${s.t}</h4>
+          <p class="text-sm text-gray-600 mb-2">${s.d}</p>
+          <div class="text-xs text-gray-500 flex justify-between"><span>${s.dept}</span><span>${s.period}</span></div>
+        </div>
+      `).join('');
+    }
+
+    function initFilters() {
+      document.querySelectorAll('.filter-btn').forEach(btn=>{
+        btn.addEventListener('click',()=>{
+          const f=btn.dataset.filter;
+          document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('bg-teal-100','text-teal-700'));
+          btn.classList.add('bg-teal-100','text-teal-700');
+          document.querySelectorAll('#recommendations-container > div').forEach(card=>{
+            if(f==='all') card.style.display='block';
+            else if(f==='high' && card.classList.contains('border-red-500')) card.style.display='block';
+            else if(f==='medium' && card.classList.contains('border-orange-400')) card.style.display='block';
+            else card.style.display='none';
+          });
+        });
+      });
+    }
+  </script>
+</body>
+</html>

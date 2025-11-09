@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Smart KPI Engine – Hospital Comparison</title>
+
+  <!-- Core Libraries -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/echarts/5.4.3/echarts.min.js"></script>
+
+  <style>
+    @import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap");
+    :root {
+      --primary:#1B4B5A;--accent:#E07A5F;--sage:#81B29A;--light:#F4F3F1;
+    }
+    *{font-family:"Inter",sans-serif;}
+    body{background:linear-gradient(135deg,var(--light)0%,#E8F4F8 100%);color:#2C3E50;min-height:100vh;}
+    .gradient-text{background:linear-gradient(135deg,var(--primary),var(--accent));
+      -webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+    .comparison-card{background:#fff;border-radius:1rem;
+      box-shadow:0 10px 25px rgba(0,0,0,0.05);border:1px solid #f0f0f0;transition:all .3s ease;}
+    .comparison-card:hover{transform:translateY(-3px);
+      box-shadow:0 12px 30px rgba(27,75,90,0.15);}
+    .hospital-selector{cursor:pointer;transition:all .3s ease;}
+    .hospital-selector.selected{border-color:var(--accent);
+      box-shadow:0 0 20px rgba(224,122,95,0.2);}
+    .ranking-badge{width:32px;height:32px;border-radius:50%;
+      font-weight:bold;color:#fff;display:flex;align-items:center;justify-content:center;}
+    .ranking-1{background:#FFD700;}
+    .ranking-2{background:#C0C0C0;}
+    .ranking-3{background:#CD7F32;}
+  </style>
+</head>
+
+<body>
+  <!-- Navigation -->
+  <nav class="bg-white/90 backdrop-blur border-b border-gray-200 sticky top-0 z-50">
+    <div class="max-w-7xl mx-auto px-6 flex justify-between items-center h-16">
+      <div class="flex items-center space-x-2">
+        <div class="w-8 h-8 bg-gradient-to-br from-teal-600 to-teal-700 rounded-lg flex items-center justify-center text-white font-bold">SK</div>
+        <span class="text-xl font-bold text-gray-800">Smart KPI Engine</span>
+      </div>
+      <div class="flex space-x-8">
+        <a href="index.html" class="text-gray-600 hover:text-teal-600">Dashboard</a>
+        <a href="comparison.html" class="text-teal-700 font-medium border-b-2 border-teal-600">Comparison</a>
+        <a href="insights.html" class="text-gray-600 hover:text-teal-600">Insights</a>
+      </div>
+      <div class="flex items-center space-x-2">
+        <div class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+        <span class="text-sm text-gray-500">Live</span>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Hero -->
+  <section class="bg-gradient-to-r from-teal-700 to-teal-500 text-white py-16 text-center">
+    <div class="max-w-3xl mx-auto px-6">
+      <h1 class="text-4xl md:text-5xl font-bold mb-4">Connected Hospital Performance Comparison</h1>
+      <p class="text-lg text-white/90">Compare KPIs across hospitals to identify strengths, gaps, and collaboration opportunities.</p>
+    </div>
+  </section>
+
+  <main class="max-w-7xl mx-auto px-6 py-12">
+    <!-- Hospital Selection -->
+    <section class="mb-12">
+      <h2 class="text-3xl font-bold gradient-text mb-6">Select Hospitals</h2>
+      <div id="hospital-selection" class="grid grid-cols-1 md:grid-cols-3 gap-6"></div>
+    </section>
+
+    <!-- Filters -->
+    <section class="mb-8">
+      <div class="flex flex-wrap items-center gap-4">
+        <label class="font-medium text-gray-700">Time Period:</label>
+        <select id="time-period" class="px-4 py-2 border rounded-lg focus:ring-2 focus:ring-teal-500">
+          <option value="current">Current</option>
+          <option value="month">Last 30 Days</option>
+          <option value="quarter">Last Quarter</option>
+        </select>
+        <select id="kpi-category" class="px-4 py-2 border rounded-lg focus:ring-2 focus:ring-teal-500">
+          <option value="all">All KPIs</option>
+          <option value="efficiency">Efficiency</option>
+          <option value="quality">Quality</option>
+          <option value="financial">Financial</option>
+          <option value="satisfaction">Patient Satisfaction</option>
+        </select>
+      </div>
+    </section>
+
+    <!-- Charts -->
+    <section class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-12">
+      <div class="comparison-card p-6">
+        <h3 class="text-xl font-semibold text-gray-800 mb-4">Performance Overview</h3>
+        <div id="performance-chart" class="h-80"></div>
+      </div>
+      <div class="comparison-card p-6">
+        <h3 class="text-xl font-semibold text-gray-800 mb-4">Trend Analysis</h3>
+        <div id="trend-chart" class="h-80"></div>
+      </div>
+    </section>
+
+    <!-- Detailed Comparison -->
+    <section class="mb-12">
+      <div class="comparison-card p-6">
+        <h3 class="text-xl font-semibold text-gray-800 mb-6">Detailed KPI Comparison</h3>
+        <div class="overflow-x-auto">
+          <table class="w-full text-sm">
+            <thead class="bg-gray-50 border-b">
+              <tr>
+                <th class="text-left py-3 px-4 font-semibold text-gray-700">KPI</th>
+                <th class="text-center py-3 px-4 font-semibold text-gray-700">General Medical Center</th>
+                <th class="text-center py-3 px-4 font-semibold text-gray-700">Regional Health System</th>
+                <th class="text-center py-3 px-4 font-semibold text-gray-700">Community Hospital</th>
+                <th class="text-center py-3 px-4 font-semibold text-gray-700">Ranking</th>
+              </tr>
+            </thead>
+            <tbody id="comparison-table-body" class="divide-y divide-gray-100"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- Best Practices -->
+    <section class="mb-12">
+      <div class="comparison-card p-6">
+        <h3 class="text-xl font-semibold text-gray-800 mb-6">Best Practices & Opportunities</h3>
+        <div id="best-practices" class="grid grid-cols-1 md:grid-cols-2 gap-6"></div>
+      </div>
+    </section>
+
+    <!-- Rankings -->
+    <section>
+      <div class="comparison-card p-6">
+        <h3 class="text-xl font-semibold text-gray-800 mb-6">Hospital Rankings</h3>
+        <div id="rankings-container" class="space-y-4"></div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Footer -->
+  <footer class="bg-gray-800 text-white py-8 mt-16">
+    <div class="max-w-7xl mx-auto text-center text-gray-400 text-sm">
+      © 2025 Smart KPI Engine. Benchmarking healthcare excellence.
+    </div>
+  </footer>
+
+  <script>
+    let selectedHospitals=['General Medical Center','Regional Health System','Community Hospital'];
+    let performanceChart=null,trendChart=null;
+    document.addEventListener('DOMContentLoaded',()=>{initialize();window.addEventListener('resize',()=>{performanceChart.resize();trendChart.resize();});});
+
+    function initialize(){renderHospitals();initCharts();renderTable();renderPractices();renderRankings();}
+
+    function renderHospitals(){
+      const h=['General Medical Center','Regional Health System','Community Hospital'];
+      const c=document.getElementById('hospital-selection');
+      c.innerHTML=h.map(name=>{
+        const perf=calcPerf(name);
+        const s=selectedHospitals.includes(name)?'selected':'';
+        return `<div class="hospital-selector comparison-card p-6 ${s}" onclick="toggleHospital('${name}')">
+          <div class="flex justify-between items-center mb-4"><h3 class="text-lg font-semibold">${name}</h3>
+          <div class="text-2xl font-bold text-teal-600">${perf.score}%</div></div>
+          <p class="text-sm text-gray-600">Top Dept: <strong>${perf.dept}</strong></p>
+          <div class="mt-3 w-full bg-gray-200 rounded-full h-2"><div class="bg-teal-500 h-2 rounded-full" style="width:${perf.score}%"></div></div></div>`;
+      }).join('');
+    }
+
+    function toggleHospital(h){
+      const i=selectedHospitals.indexOf(h);
+      if(i>-1&&selectedHospitals.length>1)selectedHospitals.splice(i,1);
+      else if(i===-1&&selectedHospitals.length<3)selectedHospitals.push(h);
+      renderHospitals();updateCharts();renderTable();renderRankings();
+    }
+
+    function calcPerf(h){
+      const s={'General Medical Center':78,'Regional Health System':85,'Community Hospital':72};
+      const d=['Emergency','Surgery','Nursing','Supply Chain','Admin'];
+      return{score:s[h],dept:d[Math.floor(Math.random()*d.length)]};
+    }
+
+    function initCharts(){
+      performanceChart=echarts.init(document.getElementById('performance-chart'));
+      trendChart=echarts.init(document.getElementById('trend-chart'));
+      updateCharts();
+    }
+
+    function updateCharts(){
+      const dpts=['Emergency','Surgery','Nursing','Supply Chain','Admin'];
+      const months=['Jan','Feb','Mar','Apr','May','Jun'];
+      const colors={'General Medical Center':'#1B4B5A','Regional Health System':'#E07A5F','Community Hospital':'#81B29A'};
+      const gen=(t)=>selectedHospitals.map(h=>({name:h,type:t,smooth:true,
+        data:Array.from({length:t==='line'?6:5},()=>Math.floor(Math.random()*20)+70),
+        itemStyle:{color:colors[h]}}));
+      performanceChart.setOption({tooltip:{trigger:'axis'},legend:{data:selectedHospitals,bottom:0},
+        xAxis:{type:'category',data:dpts},yAxis:{type:'value',max:100},series:gen('bar')});
+      trendChart.setOption({tooltip:{trigger:'axis'},legend:{data:selectedHospitals,bottom:0},
+        xAxis:{type:'category',data:months},yAxis:{type:'value',max:100},series:gen('line')});
+    }
+
+    function renderTable(){
+      const b=document.getElementById('comparison-table-body');
+      const k=['Avg Wait Time','Patient Satisfaction','Staff Utilization'];
+      b.innerHTML=k.map(kpi=>`<tr class="hover:bg-gray-50"><td class="py-3 px-4 font-medium">${kpi}</td>
+        ${selectedHospitals.map(h=>`<td class="text-center py-3">${Math.floor(Math.random()*30)+70}%</td>`).join('')}
+        <td class="text-center py-3">${selectedHospitals.map((_,i)=>`<span class="ranking-badge ranking-${i+1}">${i+1}</span>`).join(' ')}</td></tr>`).join('');
+    }
+
+    function renderPractices(){
+      const c=document.getElementById('best-practices');
+      const items=[
+        {t:'Regional Health System - Satisfaction',d:'4.3/5 satisfaction via streamlined discharge process.',c:'border-green-500 bg-green-50'},
+        {t:'General Medical Center - Staff Scheduling',d:'23% less overtime, maintained quality.',c:'border-green-500 bg-green-50'},
+        {t:'Community Hospital - Inventory',d:'Stockout rates 40% above average, needs improvement.',c:'border-orange-500 bg-orange-50'}
+      ];
+      c.innerHTML=items.map(i=>`<div class="p-4 border-l-4 ${i.c} rounded-lg"><h4 class="font-semibold mb-1">${i.t}</h4><p class="text-sm text-gray-600">${i.d}</p></div>`).join('');
+    }
+
+    function renderRankings(){
+      const cont=document.getElementById('rankings-container');
+      const data=selectedHospitals.map(h=>({h,score:calcPerf(h).score})).sort((a,b)=>b.score-a.score);
+      cont.innerHTML=data.map((d,i)=>`<div class="flex justify-between items-center bg-white border p-4 rounded-lg">
+        <div class="flex items-center space-x-3"><div class="ranking-badge ranking-${i+1}">${i+1}</div>
+        <div><h4 class="font-semibold">${d.h}</h4><p class="text-sm text-gray-500">Performance Score</p></div></div>
+        <div class="text-2xl font-bold text-teal-600">${d.score}%</div></div>`).join('');
+    }
+  </script>
+</body>
+</html>
