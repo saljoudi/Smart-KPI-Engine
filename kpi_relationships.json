@@ -3,345 +3,59 @@
     "impacts": [
       {
         "kpi": "Patient Satisfaction",
-        "strength": -0.8,
-        "description": "Longer wait times decrease satisfaction"
-      },
-      {
-        "kpi": "Left Without Being Seen",
-        "strength": 0.7,
-        "description": "Longer waits increase walkaways"
+        "strength": -0.75,
+        "description": "Longer waiting times lead to lower patient satisfaction."
       },
       {
         "kpi": "Staff Utilization",
-        "strength": -0.6,
-        "description": "High utilization causes longer waits"
-      }
-    ],
-    "affected_by": [
-      {
-        "kpi": "Staff Utilization",
-        "strength": 0.6,
-        "description": "Overutilized staff cause delays"
-      },
-      {
-        "kpi": "Bed Occupancy Rate",
         "strength": 0.5,
-        "description": "High occupancy slows patient flow"
+        "description": "High utilization rates can increase wait time due to overload."
       }
     ]
   },
   "Patient Satisfaction": {
     "impacts": [
       {
-        "kpi": "Patient Readmission Rate",
-        "strength": -0.6,
-        "description": "Higher satisfaction reduces readmissions"
-      },
-      {
-        "kpi": "Staff Turnover Rate",
-        "strength": -0.4,
-        "description": "Patient satisfaction affects staff morale"
+        "kpi": "Operating Margin",
+        "strength": 0.6,
+        "description": "Higher satisfaction improves overall hospital financial performance."
       }
     ],
     "affected_by": [
       {
         "kpi": "Average Wait Time",
-        "strength": -0.8,
-        "description": "Wait time impacts satisfaction"
+        "strength": -0.75,
+        "description": "Satisfaction decreases as wait time increases."
       },
       {
-        "kpi": "Nurse-to-Patient Ratio",
-        "strength": 0.7,
-        "description": "Better ratios improve satisfaction"
-      },
+        "kpi": "Infection Rate",
+        "strength": -0.4,
+        "description": "Higher infection rates lower satisfaction ratings."
+      }
+    ]
+  },
+  "Infection Rate": {
+    "impacts": [
       {
-        "kpi": "Medication Error Rate",
-        "strength": -0.5,
-        "description": "Errors decrease satisfaction"
+        "kpi": "Patient Satisfaction",
+        "strength": -0.4,
+        "description": "Increased infections reduce satisfaction scores."
       }
     ]
   },
   "Staff Utilization": {
     "impacts": [
       {
-        "kpi": "Average Wait Time",
-        "strength": 0.6,
-        "description": "High utilization increases waits"
-      },
-      {
-        "kpi": "Staff Turnover Rate",
-        "strength": 0.5,
-        "description": "Overutilization causes burnout"
-      },
-      {
-        "kpi": "Medication Error Rate",
-        "strength": 0.4,
-        "description": "Overworked staff make more errors"
-      }
-    ],
-    "affected_by": [
-      {
-        "kpi": "Bed Occupancy Rate",
-        "strength": 0.6,
-        "description": "High occupancy increases workload"
-      },
-      {
-        "kpi": "Nurse-to-Patient Ratio",
-        "strength": -0.7,
-        "description": "Better ratios reduce individual workload"
-      }
-    ]
-  },
-  "Operating Room Utilization": {
-    "impacts": [
-      {
-        "kpi": "Surgery Completion Rate",
-        "strength": 0.5,
-        "description": "Better utilization improves completion"
-      },
-      {
-        "kpi": "Average Surgery Duration",
-        "strength": -0.4,
-        "description": "Efficient scheduling reduces duration"
-      }
-    ],
-    "affected_by": [
-      {
-        "kpi": "Staff Utilization",
-        "strength": 0.6,
-        "description": "Staff availability affects OR usage"
-      },
-      {
-        "kpi": "Supply Chain Performance",
+        "kpi": "Operating Margin",
         "strength": 0.3,
-        "description": "Supply availability impacts scheduling"
-      }
-    ]
-  },
-  "Post-Op Infection Rate": {
-    "impacts": [
-      {
-        "kpi": "Patient Satisfaction",
-        "strength": -0.6,
-        "description": "Infections decrease satisfaction"
-      },
-      {
-        "kpi": "Cost per Discharge",
-        "strength": 0.5,
-        "description": "Infections increase treatment costs"
-      },
-      {
-        "kpi": "Patient Readmission Rate",
-        "strength": 0.7,
-        "description": "Infections often lead to readmission"
+        "description": "Optimized staff utilization supports better cost efficiency."
       }
     ],
     "affected_by": [
-      {
-        "kpi": "Training Compliance",
-        "strength": -0.6,
-        "description": "Better training reduces infections"
-      },
-      {
-        "kpi": "Nurse-to-Patient Ratio",
-        "strength": -0.4,
-        "description": "Better ratios improve care quality"
-      }
-    ]
-  },
-  "Nurse-to-Patient Ratio": {
-    "impacts": [
-      {
-        "kpi": "Patient Satisfaction",
-        "strength": 0.7,
-        "description": "Better ratios improve satisfaction"
-      },
-      {
-        "kpi": "Medication Error Rate",
-        "strength": -0.6,
-        "description": "Better ratios reduce errors"
-      },
-      {
-        "kpi": "Patient Fall Rate",
-        "strength": -0.5,
-        "description": "Better supervision reduces falls"
-      },
-      {
-        "kpi": "Staff Turnover Rate",
-        "strength": -0.4,
-        "description": "Manageable ratios reduce burnout"
-      }
-    ],
-    "affected_by": [
-      {
-        "kpi": "Staff Turnover Rate",
-        "strength": -0.5,
-        "description": "High turnover reduces available staff"
-      },
-      {
-        "kpi": "Bed Occupancy Rate",
-        "strength": -0.6,
-        "description": "High occupancy increases patient load"
-      }
-    ]
-  },
-  "Medication Error Rate": {
-    "impacts": [
-      {
-        "kpi": "Patient Satisfaction",
-        "strength": -0.5,
-        "description": "Errors decrease satisfaction"
-      },
-      {
-        "kpi": "Cost per Discharge",
-        "strength": 0.4,
-        "description": "Errors increase treatment costs"
-      },
-      {
-        "kpi": "Patient Readmission Rate",
-        "strength": 0.3,
-        "description": "Errors may lead to complications"
-      }
-    ],
-    "affected_by": [
-      {
-        "kpi": "Nurse-to-Patient Ratio",
-        "strength": -0.6,
-        "description": "Better ratios reduce errors"
-      },
-      {
-        "kpi": "Staff Utilization",
-        "strength": 0.4,
-        "description": "Overworked staff make more errors"
-      },
-      {
-        "kpi": "Training Compliance",
-        "strength": -0.7,
-        "description": "Better training reduces errors"
-      }
-    ]
-  },
-  "Supply Cost per Patient": {
-    "impacts": [
-      {
-        "kpi": "Cost per Discharge",
-        "strength": 0.6,
-        "description": "Supply costs affect total costs"
-      },
-      {
-        "kpi": "Revenue per Bed",
-        "strength": -0.4,
-        "description": "High costs reduce profitability"
-      }
-    ],
-    "affected_by": [
-      {
-        "kpi": "Inventory Turnover",
-        "strength": -0.5,
-        "description": "Better turnover reduces costs"
-      },
-      {
-        "kpi": "Waste Reduction",
-        "strength": -0.7,
-        "description": "Less waste reduces costs"
-      }
-    ]
-  },
-  "Stockout Rate": {
-    "impacts": [
-      {
-        "kpi": "Average Wait Time",
-        "strength": 0.4,
-        "description": "Stockouts delay treatments"
-      },
-      {
-        "kpi": "Surgery Completion Rate",
-        "strength": -0.5,
-        "description": "Stockouts cancel surgeries"
-      },
-      {
-        "kpi": "Patient Satisfaction",
-        "strength": -0.3,
-        "description": "Stockouts cause delays and dissatisfaction"
-      }
-    ],
-    "affected_by": [
-      {
-        "kpi": "Supplier Performance",
-        "strength": -0.8,
-        "description": "Better suppliers reduce stockouts"
-      },
-      {
-        "kpi": "Inventory Turnover",
-        "strength": -0.4,
-        "description": "Better turnover prevents stockouts"
-      }
-    ]
-  },
-  "Bed Occupancy Rate": {
-    "impacts": [
-      {
-        "kpi": "Revenue per Bed",
-        "strength": 0.7,
-        "description": "Higher occupancy increases revenue"
-      },
       {
         "kpi": "Average Wait Time",
         "strength": 0.5,
-        "description": "High occupancy slows patient flow"
-      },
-      {
-        "kpi": "Staff Utilization",
-        "strength": 0.6,
-        "description": "High occupancy increases workload"
-      }
-    ],
-    "affected_by": [
-      {
-        "kpi": "Patient Readmission Rate",
-        "strength": 0.4,
-        "description": "Readmissions affect occupancy"
-      },
-      {
-        "kpi": "Patient Satisfaction",
-        "strength": -0.3,
-        "description": "Satisfaction affects demand"
-      }
-    ]
-  },
-  "Cost per Discharge": {
-    "impacts": [
-      {
-        "kpi": "Revenue per Bed",
-        "strength": -0.6,
-        "description": "High costs reduce profitability"
-      },
-      {
-        "kpi": "Staff Productivity",
-        "strength": -0.4,
-        "description": "High costs may indicate inefficiency"
-      }
-    ],
-    "affected_by": [
-      {
-        "kpi": "Post-Op Infection Rate",
-        "strength": 0.5,
-        "description": "Infections increase costs"
-      },
-      {
-        "kpi": "Medication Error Rate",
-        "strength": 0.4,
-        "description": "Errors increase costs"
-      },
-      {
-        "kpi": "Supply Cost per Patient",
-        "strength": 0.6,
-        "description": "Supply costs affect total costs"
-      },
-      {
-        "kpi": "Patient Readmission Rate",
-        "strength": 0.7,
-        "description": "Readmissions double costs"
+        "description": "Overloaded staff correlates with higher wait times."
       }
     ]
   }
