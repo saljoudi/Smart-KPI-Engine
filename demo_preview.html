@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Smart KPI Engine – Auto Demo</title>
+
+  <!-- Core Libraries -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/echarts/5.4.3/echarts.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/typed.js/2.0.12/typed.min.js"></script>
+
+  <style>
+    @import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap");
+    :root {
+      --primary:#1B4B5A;--accent:#E07A5F;--sage:#81B29A;--light:#F4F3F1;
+    }
+    *{font-family:"Inter",sans-serif;}
+    body{background:linear-gradient(135deg,var(--light)0%,#E8F4F8 100%);color:#2C3E50;overflow-x:hidden;}
+    .hero-bg{background:linear-gradient(135deg,var(--primary)0%,#2C5F6F 50%,var(--sage)100%);color:white;}
+    .gradient-text{background:linear-gradient(135deg,var(--primary),var(--accent));
+      -webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+    .fade{transition:opacity .8s ease;}
+    .hidden{opacity:0;pointer-events:none;}
+  </style>
+</head>
+
+<body>
+  <nav class="bg-white/90 backdrop-blur border-b border-gray-200 sticky top-0 z-50">
+    <div class="max-w-7xl mx-auto px-6 flex justify-between items-center h-16">
+      <div class="flex items-center space-x-2">
+        <div class="w-8 h-8 bg-gradient-to-br from-teal-600 to-teal-700 rounded-lg flex items-center justify-center text-white font-bold">SK</div>
+        <span class="text-xl font-bold text-gray-800">Smart KPI Engine</span>
+      </div>
+      <div class="flex items-center space-x-3">
+        <span id="mode-label" class="text-sm text-gray-600 font-medium">📊 KPI Dashboard</span>
+        <div class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Hero -->
+  <section class="hero-bg py-14 text-center">
+    <div class="max-w-4xl mx-auto px-6">
+      <h1 class="text-5xl font-bold mb-6">
+        From <span id="typed-text" class="text-orange-300"></span> to Connected Intelligence
+      </h1>
+      <p class="text-lg text-white/90">
+        Automated showcase cycling between KPI and Ontology dashboards every 10 seconds.
+      </p>
+    </div>
+  </section>
+
+  <main class="max-w-7xl mx-auto px-6 py-12">
+
+    <!-- KPI Mode Section -->
+    <div id="kpi-section" class="fade">
+      <div class="bg-white p-6 rounded-xl shadow mb-8">
+        <h2 class="text-2xl font-semibold gradient-text mb-4">Hospital KPI Overview</h2>
+        <div id="performance-chart" class="h-96"></div>
+      </div>
+      <div class="bg-white p-6 rounded-xl shadow">
+        <h2 class="text-2xl font-semibold gradient-text mb-4">KPI Trends</h2>
+        <div id="trend-chart" class="h-96"></div>
+      </div>
+    </div>
+
+    <!-- Ontology Mode Section -->
+    <div id="ontology-section" class="fade hidden">
+      <div class="bg-white p-6 rounded-xl shadow mb-8">
+        <h2 class="text-2xl font-semibold gradient-text mb-4">Ontology Relationship Network</h2>
+        <div id="connection-chart" class="h-96"></div>
+      </div>
+      <div class="bg-white p-6 rounded-xl shadow">
+        <h2 class="text-2xl font-semibold gradient-text mb-4">Ontology Insights</h2>
+        <div id="insights-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+      </div>
+    </div>
+  </main>
+
+  <footer class="bg-gray-800 text-white py-6 mt-12 text-center text-gray-400 text-sm">
+    © 2025 Smart KPI Engine – Demo Preview
+  </footer>
+
+  <script>
+    /* --- Hero Typing --- */
+    new Typed("#typed-text",{
+      strings:["Disconnected Data","Siloed Metrics","Reactive Decisions"],
+      typeSpeed:70,backSpeed:50,backDelay:1800,loop:true
+    });
+
+    /* --- Shared Charts Setup --- */
+    function buildKPICharts(){
+      const pc=echarts.init(document.getElementById("performance-chart"));
+      const tc=echarts.init(document.getElementById("trend-chart"));
+      const hospitals=["General Medical Center","Regional Health System","Community Hospital"];
+      const colors={"General Medical Center":"#1B4B5A","Regional Health System":"#E07A5F","Community Hospital":"#81B29A"};
+      pc.setOption({
+        tooltip:{trigger:"axis"},legend:{data:hospitals,bottom:0},
+        xAxis:{type:"category",data:["Emergency","Surgery","Nursing","Supply","Admin"]},
+        yAxis:{type:"value",max:100},
+        series:hospitals.map(h=>({name:h,type:"bar",data:Array.from({length:5},()=>Math.floor(Math.random()*20)+70),itemStyle:{color:colors[h]}}))
+      });
+      tc.setOption({
+        tooltip:{trigger:"axis"},legend:{data:hospitals,bottom:0},
+        xAxis:{type:"category",data:["Jan","Feb","Mar","Apr","May","Jun"]},
+        yAxis:{type:"value",max:100},
+        series:hospitals.map(h=>({name:h,type:"line",smooth:true,data:Array.from({length:6},()=>Math.floor(Math.random()*20)+70),itemStyle:{color:colors[h]}}))
+      });
+      window.addEventListener("resize",()=>{pc.resize();tc.resize();});
+    }
+
+    function buildOntologyView(){
+      const chart=echarts.init(document.getElementById("connection-chart"));
+      chart.setOption({
+        title:{text:"KPI Relationship Network",left:"center"},
+        tooltip:{trigger:"item"},
+        series:[{type:"graph",layout:"force",roam:true,
+          data:[
+            {name:"Average Wait Time",value:27.5},
+            {name:"Patient Satisfaction",value:4.1},
+            {name:"Operating Margin",value:14.2}
+          ],
+          links:[
+            {source:"Average Wait Time",target:"Patient Satisfaction"},
+            {source:"Patient Satisfaction",target:"Operating Margin"}
+          ],
+          label:{show:true},
+          force:{repulsion:120}
+        }]
+      });
+      const insights=document.getElementById("insights-container");
+      insights.innerHTML=[{
+        t:"Wait Time ↔ Satisfaction",
+        d:"Reducing ER wait time by 10% improves satisfaction by 7%.",
+        c:"red"
+      },{
+        t:"Staff Utilization ↔ Margin",
+        d:"Optimal utilization (80–90%) improves cost efficiency.",
+        c:"orange"
+      },{
+        t:"Infection Control ↔ Experience",
+        d:"Infection rate reduction directly increases trust scores.",
+        c:"green"
+      }].map(i=>`
+        <div class="p-4 rounded-lg border-l-4 border-${i.c}-500 bg-${i.c}-50">
+          <h4 class="font-semibold mb-1">${i.t}</h4>
+          <p class="text-sm text-gray-600">${i.d}</p>
+        </div>`).join('');
+    }
+
+    /* --- Automatic Mode Switching --- */
+    let current="kpi";
+    const kpi=document.getElementById("kpi-section");
+    const ont=document.getElementById("ontology-section");
+    const label=document.getElementById("mode-label");
+
+    function switchMode(){
+      if(current==="kpi"){
+        kpi.classList.add("hidden");
+        ont.classList.remove("hidden");
+        label.textContent="🧠 Ontology + KPI";
+        buildOntologyView();
+        current="ontology";
+      }else{
+        ont.classList.add("hidden");
+        kpi.classList.remove("hidden");
+        label.textContent="📊 KPI Dashboard";
+        buildKPICharts();
+        current="kpi";
+      }
+    }
+
+    /* --- Initialize --- */
+    document.addEventListener("DOMContentLoaded",()=>{
+      buildKPICharts();
+      setInterval(switchMode,10000); // switch every 10s
+    });
+  </script>
+</body>
+</html>
